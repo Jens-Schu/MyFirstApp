@@ -1,4 +1,4 @@
-# Verwenden eines Basis Images
+# Verwenden eines Basis Images 
 FROM python:3.10
 
 # Definition des Arbeitsverzeichnisses
