@@ -9,7 +9,9 @@ URL = "http://127.0.0.1:8000"
 ENDPOINT_DATA = URL+"/level-1/data"
 ENDPOINT_TEAMS = URL+"/level-1/teams"
 ENDPOINT_STATS = URL+"/level-2/stats"
-ENDPOINT_ALGORITHM = URL+"/level-3/algorithm" 
+ENDPOINT_ALGORITHM = URL+"/level-3/algorithm"
+ENDPOINT_DECISION_SUPPORT = URL+"/level-4/decision_support" 
+ENDPOINT_AUTOMATED_DECISION = URL+"/level-5/automated_decision"
 
 def provide_raw_data():
     response = requests.get(url=ENDPOINT_DATA)        
@@ -40,6 +42,7 @@ def provide_derived_data():
 
     return
 
+
 def provide_algorithm():
     with st.expander("Algorithm for Home Advantage"):
         st.markdown(
@@ -69,59 +72,33 @@ def provide_algorithm():
     return
 
 
-def provide_decision_support(home_stats, away_stats, home_team, away_team):
+def provide_decision_support(home_team, away_team):
+    response = requests.get(ENDPOINT_DECISION_SUPPORT, params=({"home_team": home_team, "away_team": away_team}))
+    mean_scores = response.json()
+
     with st.expander("Metrics for Decision"):
         first_col, second_col = st.columns(2)
-        home_scoring_rank = home_stats[home_stats.team == home_team].index[0]
-        home_scoring_mean = home_stats[home_stats["team"] == home_team][
-            "points_scored"
-        ].values[0]
-        first_col.metric(label="Home Scoring Mean", value=home_scoring_mean)
 
-        away_scoring_rank = away_stats[away_stats.team == away_team].index[0]
-        away_scoring_mean = away_stats[away_stats["team"] == away_team][
-            "points_scored"
-        ].values[0]
-        second_col.metric(label="Away Scoring Mean", value=away_scoring_mean)
+        first_col.metric("Home Scoring Mean", mean_scores["home_scoring_mean"])
+        second_col.metric("Away Scoring Mean", mean_scores["away_scoring_mean"])
 
-        home_allowed_rank = home_stats[home_stats.team == home_team].index[0]
-        home_allowed_mean = home_stats[home_stats["team"] == home_team][
-            "points_allowed"
-        ].values[0]
-        first_col.metric(label="Home Allowed Mean", value=home_allowed_mean)
+        first_col.metric("Home Allowed Mean", mean_scores["home_allowed_mean"])
+        second_col.metric("Away Allowed Mean", mean_scores["away_allowed_mean"])
 
-        away_allowed_rank = away_stats[away_stats.team == away_team].index[0]
-        away_allowed_mean = away_stats[away_stats["team"] == away_team][
-            "points_allowed"
-        ].values[0]
-        second_col.metric(label="Away Allowed Mean", value=away_allowed_mean)
+    return
+  
 
-    return home_scoring_mean, home_allowed_mean, away_scoring_mean, away_allowed_mean
-
-
-def provide_automated_decision(
-    home_scoring_mean,
-    home_allowed_mean,
-    away_scoring_mean,
-    away_allowed_mean,
-    home_team,
-    away_team,
-):
+def provide_automated_decision(home_team, away_team): 
+    response = requests.get(ENDPOINT_AUTOMATED_DECISION, params=({"home_team": home_team, "away_team": away_team}))
+    prediction = response.json()
+    
+    winner = prediction["winner"]
+    spread_pred = prediction["spread_pred"]
+    
     with st.expander("Prediction"):
-        home_pred = (home_scoring_mean + away_allowed_mean) / 2
-        away_pred = (away_scoring_mean + home_allowed_mean) / 2
-
-        spread_pred = home_pred - away_pred
-
-        if spread_pred > 0:
-            winner = home_team
-            spread_pred *= -1
-
-        else:
-            winner = away_team
-            spread_pred = spread_pred
-
         st.success(f"{winner} wins with a handicap of {spread_pred} points.")
+        
+    return
 
 
 def main():
@@ -143,22 +120,10 @@ def main():
     provide_algorithm()
 
     # # Level 4
-    # (
-    #     home_scoring_mean,
-    #     home_allowed_mean,
-    #     away_scoring_mean,
-    #     away_allowed_mean,
-    # ) = provide_decision_support(home_stats, away_stats, home_team, away_team)
+    provide_decision_support(home_team, away_team)
 
     # # Level 5
-    # provide_automated_decision(
-    #     home_scoring_mean,
-    #     home_allowed_mean,
-    #     away_scoring_mean,
-    #     away_allowed_mean,
-    #     home_team,
-    #     away_team,
-    # )
+    provide_automated_decision(home_team, away_team)
     return
 
 
