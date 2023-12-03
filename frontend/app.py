@@ -13,6 +13,7 @@ ENDPOINT_ALGORITHM = URL+"/level-3/algorithm"
 ENDPOINT_DECISION_SUPPORT = URL+"/level-4/decision_support" 
 ENDPOINT_AUTOMATED_DECISION = URL+"/level-5/automated_decision"
 
+
 def provide_raw_data():
     response = requests.get(url=ENDPOINT_DATA)        
     raw_data = response.json()
