@@ -32,3 +32,14 @@ async def get_stats(team_type:str = "team"):
     stats.reset_index(drop=True, inplace=True)
     stats.index += 1  
     return stats.to_json(orient = "index")
+
+@app.get("/level-3/algorithm")
+async def algorithm():
+    raw_data = FileHandler()
+    raw_data_df = pd.DataFrame(raw_data["games"])
+
+    condition_1 = raw_data_df["points_scored"] - raw_data_df["points_allowed"] > 3
+    condition_2 = raw_data_df["points_scored"] - raw_data_df["points_allowed"] < 0
+
+    raw_data_df["true wins"] = condition_1 | condition_2
+    return raw_data_df.to_json(orient = "index")
