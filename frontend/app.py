@@ -11,7 +11,7 @@ ENDPOINT_TEAMS = URL+"/level-1/teams"
 ENDPOINT_STATS = URL+"/level-2/stats"
 ENDPOINT_ALGORITHM = URL+"/level-3/algorithm"
 ENDPOINT_DECISION_SUPPORT = URL+"/level-4/decision_support" 
-
+ENDPOINT_AUTOMATED_DECISION = URL+"/level-5/automated_decision"
 
 def provide_raw_data():
     response = requests.get(url=ENDPOINT_DATA)        
@@ -87,30 +87,18 @@ def provide_decision_support(home_team, away_team):
 
     return
   
-  
-def provide_automated_decision(
-    home_scoring_mean,
-    home_allowed_mean,
-    away_scoring_mean,
-    away_allowed_mean,
-    home_team,
-    away_team,
-):
+
+def provide_automated_decision(home_team, away_team): 
+    response = requests.get(ENDPOINT_AUTOMATED_DECISION, params=({"home_team": home_team, "away_team": away_team}))
+    prediction = response.json()
+    
+    winner = prediction["winner"]
+    spread_pred = prediction["spread_pred"]
+    
     with st.expander("Prediction"):
-        home_pred = (home_scoring_mean + away_allowed_mean) / 2
-        away_pred = (away_scoring_mean + home_allowed_mean) / 2
-
-        spread_pred = home_pred - away_pred
-
-        if spread_pred > 0:
-            winner = home_team
-            spread_pred *= -1
-
-        else:
-            winner = away_team
-            spread_pred = spread_pred
-
         st.success(f"{winner} wins with a handicap of {spread_pred} points.")
+        
+    return
 
 
 def main():
@@ -135,14 +123,7 @@ def main():
     provide_decision_support(home_team, away_team)
 
     # # Level 5
-    # provide_automated_decision(
-    #     home_scoring_mean,
-    #     home_allowed_mean,
-    #     away_scoring_mean,
-    #     away_allowed_mean,
-    #     home_team,
-    #     away_team,
-    # )
+    provide_automated_decision(home_team, away_team)
     return
 
 

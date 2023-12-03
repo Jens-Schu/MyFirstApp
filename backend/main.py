@@ -65,3 +65,18 @@ async def get_decision_support(home_team, away_team):
     }
 
     return mean_scores
+
+
+@app.get("/level-5/automated_decision")
+async def get_automated_decision(home_team: str, away_team: str):
+    mean_scores = await get_decision_support(home_team=home_team, away_team=away_team)
+
+    home_pred = (mean_scores["home_scoring_mean"] + mean_scores["away_allowed_mean"]) / 2
+    away_pred = (mean_scores["away_scoring_mean"] + mean_scores["home_allowed_mean"]) / 2
+
+    spread_pred = home_pred - away_pred
+
+    winner = home_team if spread_pred > 0 else away_team
+    spread_pred = -spread_pred if spread_pred > 0 else spread_pred
+
+    return {"winner": winner, "spread_pred": spread_pred}
