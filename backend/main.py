@@ -11,3 +11,10 @@ async def get_data():
     with open(file=PATH, mode="r") as raw_file:
         data = json.load(raw_file)
     return data
+
+@app.get("/teams")
+
+async def get_data():
+    with open(file=PATH, mode="r") as raw_file:
+        data = json.load(raw_file)
+    return data["teams"]
