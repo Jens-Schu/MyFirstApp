@@ -1,9 +1,6 @@
-import json
-
 from bs4 import BeautifulSoup
 from requests import Session, RequestException
 
-from rich import print
 
 URL = "https://www.pro-football-reference.com/"
 BOX_URL = URL + "/boxscores" 
@@ -36,13 +33,19 @@ def extract_current_week_info(soup: BeautifulSoup) -> list:
     return "/".join(info_list)
 
 
+def extract_boxscore_links(soup: BeautifulSoup) -> list:
+    links = soup.select("a:-soup-contains('Final')")
+    return [URL + link["href"] for link in links]
+
+
 def main():
     http_session = Session()
     html = request_url(session=http_session, url=BOX_URL)
     soup = parse_html_to_soup(html)
     
     key = extract_current_week_info(soup=soup)
-    print(key)
+    boxscore_links = extract_boxscore_links(soup=soup)
+    print(boxscore_links)
 
 
 if __name__ == "__main__":
