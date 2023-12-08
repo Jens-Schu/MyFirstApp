@@ -6,6 +6,7 @@ from requests import Session, RequestException
 from rich import print
 
 URL = "https://www.pro-football-reference.com/"
+BOX_URL = URL + "/boxscores" 
 HEADERS = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"}
 
 
@@ -29,12 +30,19 @@ def parse_html_to_soup(html: str) -> BeautifulSoup:
     return BeautifulSoup(html, "html.parser")
 
 
+def extract_current_week_info(soup: BeautifulSoup) -> list:
+    h2_element = soup.select_one("h2").text
+    info_list = h2_element.split()
+    return "/".join(info_list)
+
+
 def main():
     http_session = Session()
-    html = request_url(session=http_session, url=URL)
+    html = request_url(session=http_session, url=BOX_URL)
     soup = parse_html_to_soup(html)
     
-    print(soup)
+    key = extract_current_week_info(soup=soup)
+    print(key)
 
 
 if __name__ == "__main__":
