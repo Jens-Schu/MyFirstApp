@@ -1,4 +1,9 @@
+import json
+
+from bs4 import BeautifulSoup
 from requests import Session, RequestException
+
+from rich import print
 
 URL = "https://www.pro-football-reference.com/"
 HEADERS = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"}
@@ -20,10 +25,16 @@ def request_url(session:Session, url:str, retries:int=3, timeout:int=10):
     return
 
 
+def parse_html_to_soup(html: str) -> BeautifulSoup:
+    return BeautifulSoup(html, "html.parser")
+
+
 def main():
     http_session = Session()
     html = request_url(session=http_session, url=URL)
-    print(html)
+    soup = parse_html_to_soup(html)
+    
+    print(soup)
 
 
 if __name__ == "__main__":
