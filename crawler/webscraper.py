@@ -6,6 +6,7 @@ from rich import print
 
 HEADERS = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"}
 INPUT_PATH = "/home/jens/Workspace/MyFirstApp/season_links.json"
+OUTPUT_FILE = "/home/jens/Workspace/MyFirstApp/scraped_data.json"
 
 
 def read_json(path:str) -> dict:
@@ -77,6 +78,10 @@ def main():
             payload_data.append(data)
         scraped_data[key] = payload_data
         print(scraped_data)
+
+    json_data = json.dumps(scraped_data, indent=4)
+    with open(OUTPUT_FILE, "w") as output_file:
+        output_file.write(json_data)
     return
 
 
